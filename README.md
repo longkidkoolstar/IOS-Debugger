@@ -1,8 +1,8 @@
-
+Here's the corrected and final version of your `README.md` with proper formatting, fixed code blocks, and your local screenshot path updated to a GitHub-friendly relative path (`screenshots/ui.png`). Just copy and paste this into your `README.md` file on GitHub:
 
 ---
 
-### 📄 `README.md`
+### ✅ Final `README.md`
 
 ```markdown
 # 🧭 iOS Safari Remote Debugger GUI
@@ -34,7 +34,8 @@ This tool allows you to:
 - Python 3.7+
 - Pip packages: `requests`, `beautifulsoup4`
 
-> You can install the requirements using:
+You can install the requirements using:
+
 ```bash
 pip install requests beautifulsoup4
 ```
@@ -44,12 +45,14 @@ pip install requests beautifulsoup4
 ## 🛠️ Setup
 
 1. Clone this repository:
+
 ```bash
-git clone https://github.com/yourusername/ios-safari-debugger-gui.git
+git clone https://github.com/longkidkoolstar/ios-safari-debugger-gui.git
 cd ios-safari-debugger-gui
 ```
 
 2. Run the GUI:
+
 ```bash
 python main.py
 ```
@@ -73,8 +76,10 @@ python main.py
 
 ```
 .
-├── main.py               # The main application file
-├── README.md             # This file
+├── main.py                   # The main application file
+├── README.md                 # This file
+├── screenshots/
+│   └── ui.png                # Screenshot of the GUI
 └── .ios_safari_debugger.ini  # Auto-generated config file (saves WebKit path)
 ```
 
@@ -82,11 +87,7 @@ python main.py
 
 ## 📸 Screenshots
 
-> *(You can include screenshots here by uploading images to the repo and referencing them like below)*
-
-```
 ![Main UI](screenshots/ui.png)
-```
 
 ---
 
@@ -106,7 +107,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 ## 🙏 Credits
 
 Built by [longkidkoolstar](https://github.com/longkidkoolstar). Inspired by Apple's WebKit DevTools and the desire for a simple UI to debug iOS Safari.
-
 ```
 
 ---
