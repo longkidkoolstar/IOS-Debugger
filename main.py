@@ -12,11 +12,13 @@ import configparser
 import time
 import re
 from bs4 import BeautifulSoup
+import shutil
+import tempfile
 
 class IOSSafariDebuggerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("iOS Safari Remote Debugger")
+        self.root.title("iOS Safari Debugger")
         self.root.geometry("800x600")
         self.root.minsize(700, 500)
         
@@ -31,6 +33,7 @@ class IOSSafariDebuggerApp:
         self.debugging_process = None
         self.monitoring_thread = None
         self.stop_monitoring = False
+        self.repository_url = "https://github.com/google/ios-webkit-debug-proxy"  # Default repository URL
         
         # Load saved configuration
         self.load_config()
@@ -44,11 +47,14 @@ class IOSSafariDebuggerApp:
             if 'Settings' in self.config:
                 if 'webkit_path' in self.config['Settings']:
                     self.webkit_path.set(self.config['Settings']['webkit_path'])
+                if 'repository_url' in self.config['Settings']:
+                    self.repository_url = self.config['Settings']['repository_url']
         else:
             self.config['Settings'] = {}
     
     def save_config(self):
         self.config['Settings']['webkit_path'] = self.webkit_path.get()
+        self.config['Settings']['repository_url'] = self.repository_url
         with open(self.config_file, 'w') as f:
             self.config.write(f)
     
@@ -64,6 +70,7 @@ class IOSSafariDebuggerApp:
         ttk.Label(path_frame, text="Path to WebKit folder:").grid(row=0, column=0, sticky=tk.W)
         ttk.Entry(path_frame, textvariable=self.webkit_path, width=50).grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
         ttk.Button(path_frame, text="Browse", command=self.browse_webkit_path).grid(row=0, column=2, padx=5, pady=5)
+        ttk.Button(path_frame, text="Auto Setup", command=self.auto_setup_webkit).grid(row=0, column=3, padx=5, pady=5)
         
         # Status Section
         status_frame = ttk.LabelFrame(main_frame, text="Status", padding="10")
@@ -137,6 +144,157 @@ class IOSSafariDebuggerApp:
         # Add event binding for double click on page
         self.pages_tree.bind("<Double-1>", lambda e: self.open_debugger())
     
+    def auto_setup_webkit(self):
+        """Automatically clone the repository and set up WebKit folder"""
+        # Ask the user for a directory to store the WebKit files
+        target_dir = filedialog.askdirectory(title="Select Directory for Repository")
+        if not target_dir:
+            return
+        
+        # Show progress dialog
+        progress_window = tk.Toplevel(self.root)
+        progress_window.title("Setup Progress")
+        progress_window.geometry("400x200")
+        progress_window.transient(self.root)
+        progress_window.grab_set()
+        
+        progress_label = ttk.Label(progress_window, text="Initializing...")
+        progress_label.pack(pady=10)
+        
+        progress_bar = ttk.Progressbar(progress_window, orient="horizontal", length=300, mode="indeterminate")
+        progress_bar.pack(pady=10)
+        progress_bar.start()
+        
+        log_text = tk.Text(progress_window, height=5, width=45)
+        log_text.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        log_text.config(state=tk.DISABLED)
+        
+        def update_log(message):
+            log_text.config(state=tk.NORMAL)
+            log_text.insert(tk.END, f"{message}\n")
+            log_text.see(tk.END)
+            log_text.config(state=tk.DISABLED)
+            self.log_message(message)
+        
+        def setup_thread():
+            temp_dir = None
+            try:
+                update_log("Cloning repository...")
+                # Make a temp directory for cloning
+                temp_dir = tempfile.mkdtemp()
+                
+                # Clone the specified repository
+                clone_cmd = ["git", "clone", "https://github.com/HimbeersaftLP/ios-safari-remote-debug-kit", temp_dir]
+                update_log("Using git to clone repository...")
+                process = subprocess.Popen(
+                    clone_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True
+                )
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        update_log(output.strip())
+                
+                if process.returncode != 0:
+                    raise Exception("Git clone failed")
+                
+                # After cloning, generate WebKit files
+                update_log("Generating WebKit files...")
+                
+                # Path to the cloned repository's src directory
+                cloned_src_dir = os.path.join(temp_dir, "src")
+                
+                # Determine which script to run
+                generate_cmd = None
+                if platform.system() == "Windows":
+                    generate_script = os.path.join(cloned_src_dir, "generate.ps1")
+                    if not os.path.exists(generate_script):
+                        raise Exception(f"Generate script not found: {generate_script}")
+                    generate_cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", "generate.ps1"]
+                else:  # Linux/macOS
+                    generate_script = os.path.join(cloned_src_dir, "generate.sh")
+                    if not os.path.exists(generate_script):
+                        raise Exception(f"Generate script not found: {generate_script}")
+                    generate_cmd = ["bash", "generate.sh"]
+                
+                # Run generate script from the cloned src directory
+                process = subprocess.Popen(
+                    generate_cmd,
+                    cwd=cloned_src_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True
+                )
+                
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        update_log(output.strip())
+                
+                if process.returncode != 0:
+                    raise Exception("Generate script failed")
+                
+                # Create target/src directory
+                target_src_dir = os.path.join(target_dir, "src")
+                os.makedirs(target_src_dir, exist_ok=True)
+                
+                # Copy ALL contents from cloned_src_dir to target_src_dir
+                update_log("Copying repository files to target/src...")
+                for item in os.listdir(cloned_src_dir):
+                    src_item = os.path.join(cloned_src_dir, item)
+                    dest_item = os.path.join(target_src_dir, item)
+                    
+                    if os.path.exists(dest_item):
+                        if os.path.isdir(dest_item):
+                            shutil.rmtree(dest_item)
+                        else:
+                            os.remove(dest_item)
+                    
+                    if os.path.isdir(src_item):
+                        shutil.copytree(src_item, dest_item)
+                    else:
+                        shutil.copy2(src_item, dest_item)
+                        if item.endswith(".sh"):
+                            os.chmod(dest_item, 0o755)
+                
+                # Set configuration to point to the src directory (not WebKit subfolder)
+                self.webkit_path.set(target_src_dir)  # Changed here
+                self.save_config()
+                update_log("Setup completed successfully! Using src directory as root.")
+            
+            except Exception as e:
+                update_log(f"Error during setup: {str(e)}")
+                messagebox.showerror("Setup Error", f"Failed to set up WebKit: {str(e)}")
+            finally:
+                if temp_dir and os.path.exists(temp_dir):
+                    try:
+                        shutil.rmtree(temp_dir)
+                    except:
+                        pass
+                
+                self.root.after(0, progress_window.destroy)
+        
+        setup_thread = threading.Thread(target=setup_thread)
+        setup_thread.daemon = True
+        setup_thread.start()
+    
+    def _check_command_exists(self, command):
+        """Check if a command exists in the system path"""
+        try:
+            if platform.system() == "Windows":
+                subprocess.check_call(["where", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                subprocess.check_call(["which", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except:
+            return False
+    
     def browse_webkit_path(self):
         path = filedialog.askdirectory(title="Select WebKit Folder")
         if path:
@@ -153,7 +311,7 @@ class IOSSafariDebuggerApp:
         webkit_path = self.webkit_path.get()
         
         if not webkit_path or not os.path.exists(webkit_path):
-            messagebox.showerror("Error", "Please select a valid WebKit folder")
+            messagebox.showerror("Error", "Please select a valid WebKit folder or use Auto Setup")
             return
         
         self.save_config()

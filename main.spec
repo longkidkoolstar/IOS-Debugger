@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['C:\\Users\\babyk\\OneDrive\\Documents\\GitHub\\IOS-Debugger\\main.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
     datas=[],

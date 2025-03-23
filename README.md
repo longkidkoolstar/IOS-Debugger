@@ -1,26 +1,22 @@
-
-
----
+It looks like you've made some great updates to your README file! To include the tutorial GIF and ensure the paths to your media files are correct, you should update the markdown to reference the relative paths within your repository. Here's how you can adjust the README to include the GIF and ensure the paths are correct:
 
 ```markdown
 # 🧭 iOS Safari Remote Debugger GUI
 
 A simple graphical interface built with Python and Tkinter to help developers debug Safari on iOS devices using Apple's WebKit Remote Debugging Protocol.
 
-This tool allows you to:
-- Start and stop the local WebKit remote debugging server
-- View a list of inspectable pages on connected iOS Safari instances
-- Open the Safari DevTools for a selected page directly in your browser
+![Main UI](media/screenshots/ui.png)
 
 ---
 
 ## 📦 Features
 
+- ✅ **One-click Auto Setup** of WebKit environment
 - ✅ Save and remember WebKit folder path
-- ✅ Start/stop WebKit remote debugging server with a click
-- ✅ List all currently available inspectable Safari tabs
-- ✅ Open Safari's DevTools UI for selected pages
-- ✅ Console log output built-in
+- ✅ Start/stop WebKit remote debugging server
+- ✅ List inspectable Safari tabs in real-time
+- ✅ Direct DevTools access for selected pages
+- ✅ Built-in console logging
 - ✅ Cross-platform support (Windows, macOS, Linux)
 
 ---
@@ -30,9 +26,8 @@ This tool allows you to:
 ### 🔧 Requirements
 
 - Python 3.7+
+- Git (for auto-setup)
 - Pip packages: `requests`, `beautifulsoup4`
-
-You can install the requirements using:
 
 ```bash
 pip install requests beautifulsoup4
@@ -40,86 +35,105 @@ pip install requests beautifulsoup4
 
 ---
 
-## 🛠️ Setup from Source
+## 🌀 Auto Setup Feature
+
+1. **Launch the application**
+```bash
+python main.py
+```
+
+2. **Click the "Auto Setup WebKit" button**
+   - Select your desired installation directory
+   - The tool will automatically:
+     - Clone the required repository
+     - Generate WebKit files
+     - Set up start scripts
+     - Configure paths
+
+3. **Wait for completion**  
+   A progress window will show real-time updates during:
+   - Repository cloning
+   - WebKit generation
+   - File copying
+
+![Auto Setup Tutorial](media/gifs/tut.gif)
+
+---
+
+## 🔧 Manual Setup from Source
 
 1. Clone this repository:
-
 ```bash
 git clone https://github.com/longkidkoolstar/IOS-Debugger.git
 cd IOS-Debugger
 ```
 
 2. Run the GUI:
-
 ```bash
 python main.py
 ```
 
-3. Select your local **WebKit folder** (containing `start.sh` or `start.ps1`) via the "Browse" button.
-
-> ⚠️ Make sure your iOS device is connected and Safari is open with Web Inspector enabled.
+3. Manually select your WebKit folder containing:
+   - `start.sh` (Linux/macOS)
+   - `start.ps1` (Windows)
+   - `WebKit/` directory
 
 ---
 
-## 📦 Download (Prebuilt)
+## 📦 Prebuilt Executable
 
-No Python setup required! Download the latest prebuilt `.exe` from the releases page:
+Windows users can download the standalone executable:
 
-🔗 [Download main.exe from GitHub Releases →](https://github.com/longkidkoolstar/IOS-Debugger/releases/tag/V1.0.0)
-
-Assets:
-- 🗂 [IOS-Debugger.zip](https://github.com/longkidkoolstar/IOS-Debugger/releases/download/V1.0.0/IOS-Debugger.zip)
-- ⚙️ [main.exe](https://github.com/longkidkoolstar/IOS-Debugger/releases/download/V1.0.0/main.exe)
-- 🧾 [Source Code (zip)](https://github.com/longkidkoolstar/IOS-Debugger/archive/refs/tags/V1.0.0.zip)
-- 🧾 [Source Code (tar.gz)](https://github.com/longkidkoolstar/IOS-Debugger/archive/refs/tags/V1.0.0.tar.gz)
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%20EXE-blue?style=for-the-badge&logo=windows)](https://github.com/longkidkoolstar/IOS-Debugger/releases/latest)
 
 ---
 
 ## 🧪 Usage
 
-- Click `Start Debugging Server` to launch the local server.
-- Click `Refresh Pages` to load currently opened tabs on your iOS device.
-- Select any page from the list and click `Open Debugger` to open Safari DevTools in your browser.
-- Double-clicking a page also opens it directly.
+1. **Start Debugging Server**  
+   Click the power button to launch local server
+
+2. **Refresh Pages**  
+   Load currently active Safari tabs from connected iOS devices
+
+3. **Open DevTools**  
+   Select a page and click "Open Debugger" or double-click entries
 
 ---
 
-## 📁 Folder Structure
+## 🗂 Folder Structure After Auto-Setup
 
 ```
-.
-├── main.py                   # The main application file
-├── main.exe                  # Precompiled executable (Windows only)
-├── screenshots/
-│   └── ui.png                # Screenshot of the GUI
-├── README.md                 # This file
-└── .ios_safari_debugger.ini  # Auto-generated config file (saves WebKit path)
+your_selected_directory/
+└── src/
+    ├── WebKit/         # WebInspector files
+    ├── generate.ps1    # Windows setup script
+    ├── generate.sh     # Linux/macOS setup script
+    ├── start.ps1       # Windows launch script
+    └── start.sh        # Linux/macOS launch script
 ```
 
 ---
 
-## 📸 Screenshots
+## 💡 Important Notes
 
-![Main UI](screenshots/ui.png)
-
----
-
-## 💡 Notes
-
-- This tool does **not** include WebKit itself. You need to [build WebKit from source](https://webkit.org) or use a precompiled version with `start.sh` or `start.ps1`.
-- Make sure port `9221` is available and not blocked by firewalls.
-- Tested on Windows 10. macOS and Linux should work if you run the `.py` script manually.
+- First-run setup requires internet connection to clone repository
+- Ensure iOS device has Web Inspector enabled:
+  `Settings → Safari → Advanced → Web Inspector`
+- Keep iOS device unlocked and connected via USB during debugging
+- Firewall should allow ports 8080 (HTTP) and 9222 (WebSocket)
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more info.
+MIT License - [LICENSE](LICENSE)
 
 ---
 
 ## 🙏 Credits
 
-Built by [longkidkoolstar](https://github.com/longkidkoolstar). Inspired by Apple's WebKit DevTools and the desire for a simple UI to debug iOS Safari.
+Developed by [longkidkoolstar](https://github.com/longkidkoolstar)  
+WebKit setup automation based on [ios-safari-remote-debug-kit](https://github.com/HimbeersaftLP/ios-safari-remote-debug-kit)
 
 
