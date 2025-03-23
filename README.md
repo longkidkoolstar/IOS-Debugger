@@ -4,11 +4,11 @@ It looks like you've made some great updates to your README file! To include the
 # 🧭 iOS Safari Remote Debugger GUI
 
 A simple graphical interface built with Python and Tkinter to help developers debug Safari on iOS devices using Apple's WebKit Remote Debugging Protocol.
-
+```
 ![Main UI](media/screenshots/ui.png)
 
 ---
-
+```markdown
 ## 📦 Features
 
 - ✅ **One-click Auto Setup** of WebKit environment
@@ -28,10 +28,14 @@ A simple graphical interface built with Python and Tkinter to help developers de
 - Python 3.7+
 - Git (for auto-setup)
 - Pip packages: `requests`, `beautifulsoup4`
+```
+
 
 ```bash
 pip install requests beautifulsoup4
 ```
+
+
 
 ---
 
