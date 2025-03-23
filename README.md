@@ -1,4 +1,4 @@
-It looks like you've made some great updates to your README file! To include the tutorial GIF and ensure the paths to your media files are correct, you should update the markdown to reference the relative paths within your repository. Here's how you can adjust the README to include the GIF and ensure the paths are correct:
+
 
 ```markdown
 # 🧭 iOS Safari Remote Debugger GUI
